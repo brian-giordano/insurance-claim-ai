@@ -1,0 +1,16 @@
+# Core document processing
+PyPDF2
+regex
+
+# AI/ML (simplified)
+transformers
+sentence-transformers
+faiss-cpu
+
+# UI
+streamlit
+
+# Utilities
+python-dotenv
+pandas
+numpy
