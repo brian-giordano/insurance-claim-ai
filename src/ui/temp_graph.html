@@ -1,0 +1,163 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 600px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#2196F3", "font": {"color": "black"}, "id": "policy1", "label": "POL-HDI-45678", "shape": "dot", "title": "policy_number: POL-HDI-45678\ntype: Homeowners\nstart_date: 2023-01-01\nend_date: 2024-01-01\npremium: 1200.0\ndeductible: 1000.0"}, {"color": "#4CAF50", "font": {"color": "black"}, "id": "person1", "label": "John Smith", "shape": "dot", "title": "name: John Smith\ntype: Homeowners\naddress: 123 Main Street, Hartford, CT 06103\nphone: (555) 123-4567\nemail: john.smith@email.com"}, {"color": "#F44336", "font": {"color": "black"}, "id": "claim1", "label": "CLM-2023-78945", "shape": "dot", "title": "claim_number: CLM-2023-78945\ndate_of_loss: 2023-05-15\nincident_type: Water Damage\nstatus: Open\nreported_date: 2023-05-15"}, {"color": "#9C27B0", "font": {"color": "black"}, "id": "property1", "label": "property1", "shape": "dot", "title": "address: 123 Main Street, Hartford, CT 06103\ntype: Single Family Home\nyear_built: 1985\nsquare_feet: 2200"}, {"color": "#FF9800", "font": {"color": "black"}, "id": "provider1", "label": "ABC Plumbing", "shape": "dot", "title": "name: ABC Plumbing\nservice_type: Plumbing\nphone: (555) 987-6543"}, {"color": "#FF9800", "font": {"color": "black"}, "id": "provider2", "label": "XYZ Water Restoration", "shape": "dot", "title": "name: XYZ Water Restoration\nservice_type: Water Mitigation\nphone: (555) 456-7890"}]);
+                  edges = new vis.DataSet([{"from": "person1", "label": "HOLDS", "title": "role: Primary Insured", "to": "policy1"}, {"from": "person1", "label": "OWNS", "title": "since: 2011", "to": "property1"}, {"from": "person1", "label": "FILED", "title": "date: 2023-05-15", "to": "claim1"}, {"from": "claim1", "label": "COVERED_BY", "title": "coverage_type: Dwelling", "to": "policy1"}, {"from": "claim1", "label": "AFFECTS", "title": "damage_extent: Moderate", "to": "property1"}, {"from": "claim1", "label": "SERVICED_BY", "title": "service_date: 2023-03-15\nservice_type: Pipe Repair", "to": "provider1"}, {"from": "claim1", "label": "SERVICED_BY", "title": "service_date: 2023-05-15\nservice_type: Water Extraction", "to": "provider2"}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "barnesHut": {
+            "avoidOverlap": 0,
+            "centralGravity": 0.3,
+            "damping": 0.09,
+            "gravitationalConstant": -80000,
+            "springConstant": 0.001,
+            "springLength": 200
+        },
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
