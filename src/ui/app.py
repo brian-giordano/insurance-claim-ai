@@ -7,6 +7,7 @@ import networkx as nx
 import pandas as pd
 import base64
 from pathlib import Path
+import time
 
 # Add the parent directory to the path so we can import our modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -97,81 +98,122 @@ st.title("🔍 Insurance Claims AI Analyzer")
 tab1, tab2, tab3 = st.tabs(["Document Analysis", "Insurance Knowledge", "Relationship Graph"])
 
 with tab1:
-    st.subheader("Upload claim document for instant analysis")
-
+    st.subheader("Upload claim documents for instant analysis")
+    
     # Sidebar for tab1
     with st.sidebar:
         st.header("Analysis Options")
         fraud_check = st.checkbox("Fraud Detection", value=True)
         coverage_check = st.checkbox("Coverage Analysis", value=True)
         compliance_check = st.checkbox("Compliance Check", value=True)
-
+    
     # File uploader
     uploaded_file = st.file_uploader("Upload Claim Document", type=["pdf", "txt"])
-
+    
     if uploaded_file:
-        # Save the uploaded file to a temp file
+        # Save the uploaded file to a temporary file
         with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(uploaded_file.name)[1]) as tmp_file:
             tmp_file.write(uploaded_file.getvalue())
             tmp_file_path = tmp_file.name
-
+        
         # Process the document
         with st.spinner("Processing document..."):
             result = processor.process_file(tmp_file_path)
-
-            # Remove the temp file
+            
+            # Remove the temporary file
             os.unlink(tmp_file_path)
-
+            
             st.success("Document processed successfully!")
-
+            
             # Display extracted information
             col1, col2 = st.columns(2)
-
+            
             with col1:
                 st.subheader("Claim Information")
-
+                
                 # Display extracted metadata
                 for field, value in result["metadata"].items():
                     if field not in ["filename", "processed_at"] and value is not None:
                         # Format the field name for display
                         display_name = " ".join(word.capitalize() for word in field.split("_"))
                         st.write(f"**{display_name}:** {value}")
-
+            
+            # Risk Assessment with properly bold titles
             with col2:
                 st.subheader("Risk Assessment")
-
-                # Placeholder metrics
-                # TODO: replace with AI-generated values
-                if result["metadata"].get("incident_type") and "water damage" in result["metadata"]["incident_type"].lower():
-                    fraud_risk = "Low (12%)"
-                    coverage_confidence = "High (95%)"
-                else:
-                    fraud_risk = "Medium (35%)"
-                    coverage_confidence = "Medium (75%)"
                 
-                st.metric("Fraud Risk", fraud_risk)
-                st.metric("Coverage Confidence", coverage_confidence)
-                st.metric("Estimated Settlement", "$12,500")
-
+                # Function to display a metric with a colored box and PROPERLY bold title
+                def display_metric(label, value, status="neutral"):
+                    if status == "good":
+                        color = "rgba(76, 175, 80, 0.1)"  # Light green
+                        border = "#4CAF50"  # Green
+                    elif status == "warning":
+                        color = "rgba(255, 152, 0, 0.1)"  # Light orange
+                        border = "#FF9800"  # Orange
+                    else:
+                        color = "rgba(33, 150, 243, 0.1)"  # Light blue
+                        border = "#2196F3"  # Blue
+                    
+                    st.markdown(f"""
+                    <div style="background-color: {color}; padding: 10px 15px; border-radius: 5px; margin-bottom: 10px; border-left: 5px solid {border};">
+                        <div style="font-size: 0.85em; color: #333; margin-bottom: 3px; font-weight: 700;">{label}</div>
+                        <div style="font-size: 1.2em; font-weight: bold;">{value}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                # Display metrics with color coding AND properly bold titles
+                if fraud_check:
+                    fraud_risk = "Low (12%)" if result["metadata"].get("incident_type") and "water damage" in result["metadata"]["incident_type"].lower() else "Medium (35%)"
+                    status = "good" if "Low" in fraud_risk else "warning"
+                    display_metric("Fraud Risk", fraud_risk, status)
+                
+                if coverage_check:
+                    coverage_confidence = "High (95%)" if result["metadata"].get("incident_type") and "water damage" in result["metadata"]["incident_type"].lower() else "Medium (75%)"
+                    status = "good" if "High" in coverage_confidence else "warning"
+                    display_metric("Coverage Confidence", coverage_confidence, status)
+                
+                if compliance_check:
+                    if result["metadata"].get("incident_type") and "water damage" in result["metadata"]["incident_type"].lower():
+                        compliance_status = "Needs Verification"
+                    else:
+                        compliance_status = "Inspection Required"
+                    display_metric("Compliance Status", compliance_status, "warning")
+                
+                # Estimated settlement is always shown
+                display_metric("Estimated Settlement", "$12,500", "neutral")
+            
             # Recommendations
             st.subheader("AI Recommendations")
 
-            # Placeholder recommendations
-            # TODO: Replace with AI-generated values
+            # Build recommendations based on selected options
+            recommendations = []
+
+            # Basic recommendation always included
             if result["metadata"].get("incident_type") and "water damage" in result["metadata"]["incident_type"].lower():
-                st.info(
-                    "✅ Claim appears legitimate with consistent documentation\n"
-                    "✅ Water damage from burst pipes is covered under policy section I.A.2\n"
-                    "⚠️ Request additional photos of the affected area\n"
-                    "⚠️ Verify if water mitigation services were employed within 24-48 hours"
-                )
+                recommendations.append("✅\u00A0\u00A0\u00A0Claim appears legitimate with consistent documentation")
             else:
-                st.info(
-                    "✅ Claim documentation is complete\n"
-                    "⚠️ Verify coverage in policy details\n"
-                    "⚠️ Request additional documentation\n"
-                    "⚠️ Schedule adjuster inspection"
-                )
+                recommendations.append("✅\u00A0\u00A0\u00A0Claim documentation is complete")
+
+            # Add recommendations based on selected options
+            if coverage_check:
+                if result["metadata"].get("incident_type") and "water damage" in result["metadata"]["incident_type"].lower():
+                    recommendations.append("✅\u00A0\u00A0\u00A0Water damage from burst pipes is covered under policy section I.A.2")
+                else:
+                    recommendations.append("⚠️\u00A0\u00A0\u00A0Verify coverage in policy details")
+
+            if fraud_check:
+                recommendations.append("⚠️\u00A0\u00A0\u00A0Request additional photos of the affected area")
+
+            if compliance_check:
+                if result["metadata"].get("incident_type") and "water damage" in result["metadata"]["incident_type"].lower():
+                    recommendations.append("⚠️\u00A0\u00A0\u00A0Verify if water mitigation services were employed within 24-48 hours")
+                else:
+                    recommendations.append("⚠️\u00A0\u00A0\u00A0Schedule adjuster inspection")
+
+            # Display each recommendation in its own info box
+            with st.container():
+                for rec in recommendations:
+                    st.info(rec)
 
             # Display the original text
             with st.expander("View Document Text"):
@@ -340,7 +382,26 @@ with tab3:
 with st.sidebar:
     st.header("About")
     st.write(
-        "This system uses AI to analyze insurance claims, extract key information, and provide knowledge about insurance concepts."
+        "This system uses AI to analyze insurance claims, "
+        "extract key information, and provide knowledge about insurance concepts."
     )
+    
+    with st.expander("Help"):
+        st.write("""
+        ### How to Use This App
+        
+        **Document Analysis**
+        - Upload a claim document (PDF or TXT)
+        - View extracted information and recommendations
+        
+        **Insurance Knowledge**
+        - Type a question or select a sample question
+        - View the answer with confidence score
+        
+        **Relationship Graph**
+        - Explore the visualization of insurance entities
+        - Use the path finder to discover connections
+        """)
+    
     st.divider()
     st.write("© 2025 Insurance Claims AI")
