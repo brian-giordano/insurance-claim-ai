@@ -4,8 +4,8 @@ python-docx==1.1.0
 regex==2023.10.3
 
 # AI/ML
-transformers==4.36.2
-sentence-transformers==2.2.2
+transformers>=4.39.0  # Updated to be compatible with langchain-huggingface
+sentence-transformers>=2.2.2
 faiss-cpu==1.7.4
 langchain==0.1.0
 langchain-community==0.0.13
@@ -17,9 +17,9 @@ pyvis==0.3.2
 networkx==3.2.1
 
 # UI
-streamlit==1.29.0
+streamlit>=1.29.0
 
 # Utilities
 python-dotenv==1.0.0
-pandas==2.1.4
-numpy==1.24.3
+pandas>=2.0.0,<2.1.0  # Use an older version of pandas that's compatible with Python 3.13
+numpy>=1.24.3
