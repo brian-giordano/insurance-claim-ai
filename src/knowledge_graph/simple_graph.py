@@ -124,16 +124,20 @@ class SimpleGraphDatabase:
     def find_paths(self, start_node_id: str, end_node_id: str, max_depth: int = 3) -> List[List[Tuple[str, str, str]]]:
         """
         Find all paths between two nodes up to a maximum depth.
-
+        Consider both directions of relationships.
+        
         Args:
             start_node_id: ID of the starting node
             end_node_id: ID of the ending node
             max_depth: Maximum path length
-
+            
         Returns:
             List of paths, where each path is a list of (node_id, relationship_type, node_id) tuples
         """
-
+        # Special case: start and end are the same
+        if start_node_id == end_node_id:
+            return [[(start_node_id, "SELF", start_node_id)]]
+        
         def dfs(current_id, target_id, path, visited, all_paths, depth):
             if depth > max_depth:
                 return
@@ -143,15 +147,24 @@ class SimpleGraphDatabase:
                 return
             
             visited.add(current_id)
-
+            
+            # Check outgoing relationships
             for rel in self.relationships:
                 if rel["source"] == current_id and rel["target"] not in visited:
                     path.append((current_id, rel["type"], rel["target"]))
                     dfs(rel["target"], target_id, path, visited, all_paths, depth + 1)
                     path.pop()
             
+            # Check incoming relationships (treat them as bidirectional)
+            for rel in self.relationships:
+                if rel["target"] == current_id and rel["source"] not in visited:
+                    # Add with reversed direction indicator
+                    path.append((current_id, f"INVERSE_{rel['type']}", rel["source"]))
+                    dfs(rel["source"], target_id, path, visited, all_paths, depth + 1)
+                    path.pop()
+            
             visited.remove(current_id)
-
+        
         all_paths = []
         dfs(start_node_id, end_node_id, [], set(), all_paths, 0)
         return all_paths
