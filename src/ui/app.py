@@ -13,8 +13,19 @@ import time
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from src.document_processor.processor import ClaimDocumentProcessor
-from src.rag_system.rag import SimpleRAG
+# Try to import the real RAG system, fall back to mock if needed
+try:
+    from src.rag_system.rag import SimpleRAG
+    is_demo_mode = False
+except ImportError:
+    from src.rag_system.mock_rag import SimpleRAG
+    is_demo_mode = True
+
 from src.knowledge_graph.simple_graph import SimpleGraphDatabase, create_sample_insurance_graph
+
+# Add a note if we're in demo mode
+if is_demo_mode:
+    st.sidebar.info("⚠️ Running in demo mode with simplified RAG system. The full version with LangChain and Hugging Face integration is available in the GitHub repository.")
 
 # Set the page configuration
 st.set_page_config(
