@@ -64,6 +64,7 @@ source venv/bin/activate            # On Windows: venv\Scripts\activate
 
 ## Project Structure
 
+```
 insurance-claims-ai/
 ├── data/
 │ └── knowledge_base.json
@@ -83,6 +84,7 @@ insurance-claims-ai/
 │ └── app.py
 ├── requirements.txt
 └── README.md
+```
 
 ## Usage
 
