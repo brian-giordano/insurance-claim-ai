@@ -11,6 +11,12 @@ This project demonstrates the application of AI and data engineering techniques 
 - **Graph Database**: Model and visual relationshiops between insurance entities
 - **User Interface**: Streamlit-based interface for interacting with all components
 
+## Demo App
+
+A live demo is available at: [https://insurance-claim-ai.onrender.com](https://insurance-claim-ai.onrender.com)
+
+**Note:** The app is hosted on Render's free tier, which spins down after 15 minutes of inactivity. If you're the first visitor after inactivity, it may take 30-60 seconds to load. If you experience any loading issues, please refresh the page.
+
 ## Features
 
 ### Document Analysis
