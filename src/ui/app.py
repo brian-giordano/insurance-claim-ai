@@ -9,8 +9,6 @@ import base64
 from pathlib import Path
 import time
 
-
-
 # Add the parent directory to the path so we can import our modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
@@ -28,7 +26,7 @@ st.set_page_config(
 
 # Display a loading message
 with st.spinner("Loading application resources..."):
-    # Import your heavy dependencies here
+    # Import heavy dependencies here
     # This gives time for the frontend to stabilize
     time.sleep(3)
 
