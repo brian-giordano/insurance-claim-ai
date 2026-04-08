@@ -35,3 +35,14 @@ graph TD
     C --> F[Knowledge Graph]
     F --> G[Interactive PyVis Visualization]
 ```
+
+### Screenshots
+
+<img src="https://github.com/brian-giordano/insurance-claim-ai/blob/main/screenshots/01-hero.png" alt="Hero View">
+Full app overview with all three tabs visible
+<img src="https://github.com/brian-giordano/insurance-claim-ai/blob/main/screenshots/02-document-analysis.png" alt="Document Analysis">
+Sample claim processed with metrics, risk scores, and recommendations
+<img src="https://github.com/brian-giordano/insurance-claim-ai/blob/main/screenshots/03-rag-assistant.png" alt="Knowledge Assistant">
+RAG-powered insurance knowledge assistant with sample questions
+<img src="https://github.com/brian-giordano/insurance-claim-ai/blob/main/screenshots/04-knowledge-graph.png" alt="Relationship Graph">
+Interactive knowledge graph with statistics and path analysis
