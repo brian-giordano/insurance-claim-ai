@@ -1,24 +1,16 @@
-# Document Processing
-PyPDF2==3.0.1
-python-docx==1.1.0
-regex==2023.10.3
+# Core
+streamlit>=1.38.0
+PyPDF2>=3.0.0
 
-# AI/ML
-transformers==4.30.2
-sentence-transformers==2.2.2
+# Data & Graph
+pandas>=2.2.0
+networkx>=3.3
+pyvis>=0.3.2
 
-# LangChain
-langchain==0.0.267
-langchain-community==0.0.10
+# Optional / future-proof (kept light)
+python-dotenv>=1.0.0
 
-# Graph Database
-networkx==3.2.1
-pyvis==0.3.2
-
-# UI
-streamlit>=1.29.0
-
-# Utilities
-python-dotenv==1.0.0
-pandas==1.5.3
-numpy==1.24.3
+# If you later add vector RAG (recommended next step)
+# sentence-transformers>=3.0.0
+# transformers>=4.40.0
+# faiss-cpu>=1.8.0   # or faiss-gpu if you have CUDA
